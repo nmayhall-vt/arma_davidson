@@ -1,0 +1,8 @@
+cmake_minimum_required (VERSION 2.6)
+project (arma_davidson)
+
+add_definitions(-DDEBUG -larmadillo)
+add_executable(arma_davidson 
+	main.cpp 
+	Davidson.cpp
+	)
