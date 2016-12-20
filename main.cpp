@@ -15,17 +15,19 @@ int main ()
 #endif
 
 
-    size_t N = 10000;
-    int n_roots = 1;
+    size_t N = 5000;
+    int n_roots = 4;
     
     Davidson my_davidson(N,n_roots,"scr");
     my_davidson.rand_init();
 
     mat A = randn(N,N);
     A = A.t() + A;
-    A = A - 1000*diagmat(randu(N));
+    //A = A - 1000*diagmat(randu(N));
+    for(size_t i=0; i<N; i++) A(i,i) += i*10;
     
     my_davidson.set_max_iter(100);
+    my_davidson.set_thresh(1e-6);
         
     // store diagonal
     {
@@ -45,7 +47,7 @@ int main ()
         
         sigma.save(my_davidson.sigma_file_curr());
     
-        if(i>4) my_davidson.turn_on_preconditioner();
+        if(i>20) my_davidson.turn_on_preconditioner();
         
         my_davidson.iterate();
         my_davidson.print_iteration();

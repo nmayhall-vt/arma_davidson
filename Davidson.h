@@ -37,6 +37,7 @@ class Davidson
         vec _ritz_vals; ///< current ritz values
         int _do_preconditioner;
         void precondition(vec& Hd, vec& r, double& l);
+        void precondition(vec& Hd, mat& R, vec& l);
 
 
     public:
@@ -49,6 +50,9 @@ class Davidson
 
         /// Set scratch file directory 
         void set_scr_dir(const string& f){_scr_dir = f;};
+
+        /// Set convergence threshhold for norm of residual
+        void set_thresh(const double&e){_thresh = e;};
 
         /// Set max number of iterations
         void set_max_iter(const int& m){_max_iter = m;};

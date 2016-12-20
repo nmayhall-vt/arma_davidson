@@ -101,6 +101,7 @@ void Davidson::iterate()
         mat V_curr;
         V_curr.load(_subspace_file_curr,arma_binary);
         V = join_rows(V,V_curr);
+        V.save(_subspace_file_save, arma_binary);
     };
 
 
@@ -108,6 +109,7 @@ void Davidson::iterate()
 
     /*
     mat S = V.t() * V;// V'V
+    //cout << det(S) << endl;
     mat X, Xinv;
 
     {
@@ -125,12 +127,45 @@ void Davidson::iterate()
     //vec l;
 
     eig_sym(_ritz_vals,X,T);
-    //cout << l << endl;
-
+    X = X.cols(0,_n_roots-1);
+    _ritz_vals = _ritz_vals.subvec(0,_n_roots-1);
+    //cout << _ritz_vals << endl;
+    
     mat R = sigma * X - V * X * diagmat(_ritz_vals);
     mat V_new;
+
+    if(0)
+    {
+
+        for(int i=0; i<_n_roots; i++) _res_vals(i) = norm(R.col(i));
+
+        if(_do_preconditioner) 
+        {
+            precondition(Hd, R, _ritz_vals);
+        };
+
+        R = R - V* ( V.t()*R );
+
+        //if(V_new.n_cols > 0) r_n = r_n - V_new*V_new.t()*r_n;
+
+           
+        {
+            cout << R.n_rows << endl;
+            cout << R.n_cols << endl;
+            mat tmp = R.t() * R;
+            mat tmp2,tmp3;
+            vec vtmp;
+            svd(tmp2,vtmp,tmp3,tmp);
+            cout << vtmp << endl;
+        };
+
+        //V_new = orth(R);
+        V_new = R;
+    };
+
     for(int n=0; n<_n_roots; n++)
     {
+        //continue;
         //double l_n = ritz_vals(n);
         //sigma -= l_n*V;
         //mat r_n = sigma*X.col(n);
@@ -143,32 +178,36 @@ void Davidson::iterate()
         //res_vals(res_vals.n_elem-1) = b_n;
         _res_vals(n) = b_n;
 
-        if(abs(b_n) < _thresh) continue;
+        //if(abs(b_n) < _thresh) continue;
         
-        r_n = r_n/b_n;
+        //r_n = r_n/b_n;
 
         // do preconditioning
         if(_do_preconditioner) 
         {
             precondition(Hd, r_n, _ritz_vals(n));
-        }; 
+        };
+        b_n = norm(r_n); 
         
        
         // check if this root is converged 
-        if(b_n > _thresh)
+        //if(b_n > _thresh)
         {
-            for(int j=0; j<V.n_cols; j++) r_n = r_n - V.col(j)*dot(V.col(j),r_n);
-            b_n = norm(r_n);
+            //for(int j=0; j<V.n_cols; j++) r_n = r_n - V.col(j)*dot(V.col(j),r_n);
+            //for(int j=0; j<V_new.n_cols; j++) r_n = r_n - V_new.col(j)*dot(V_new.col(j),r_n);
+            r_n = r_n - V*V.t()*r_n;
+            if(V_new.n_cols > 0) r_n = r_n - V_new*V_new.t()*r_n;
+            double b_n_p = norm(r_n);
             //_res_vals(n) = b_n;
-            if(b_n > _thresh)
+            if(b_n_p / b_n > 1e-3)
             {
-                //r_n = r_n/b_n;
+                r_n = r_n/b_n_p;
                 V_new = join_rows(V_new,r_n);
+            }
+            else if( b_n > _thresh)
+            {
+                //V_new = join_rows(V_new,R.col(n)/b_n);
             };
-        }
-        else
-        {
-            continue;
         };
     };
     
@@ -176,7 +215,7 @@ void Davidson::iterate()
 
     _subspace_size += V_new.n_cols;
 
-    V.save(_subspace_file_save, arma_binary);
+    //V.save(_subspace_file_save, arma_binary);
     V_new.save(_subspace_file_curr, arma_binary);
 
     _iter += 1;
@@ -210,8 +249,47 @@ int Davidson::converged()
 
 void Davidson::precondition(vec& Hd, vec& r, double& l)
 {/*{{{*/
-    vec M = 1/(Hd - l);
-    r = M % r;
+    double denom;
+    for(size_t i=0; i<r.n_elem; i++)
+    {
+        denom = l-Hd(i);
+        if(abs(denom) < 1e-8)
+        {
+           r(i) = r(i) / 1e-8; 
+        }
+        else
+        {
+            r(i) = r(i) / denom;
+        };
+    };
+
+    //r = M % r;
+    //r = r/norm(r);
+};/*}}}*/
+
+void Davidson::precondition(vec& Hd, mat& R, vec& l)
+{/*{{{*/
+    double M;
+    for(size_t i=0; i<R.n_cols; i++)
+    {
+        double Mi = 1;
+        
+        for(size_t j=0; j<Hd.n_elem; j++)
+        {
+            Mi = l(i) - Hd(j);
+            if(abs(Mi) < 1e-8) 
+            {
+                R(j,i) = R(j,i) / 1e-8;
+            }
+            else
+            {
+                R(j,i) = R(j,i) / Mi;
+            };
+        };
+
+    };
+    //r = M % r;
+    //r = r/norm(r);
 };/*}}}*/
 
 
