@@ -26,12 +26,15 @@ class Davidson
         double _thresh; ///< thresh
         int _max_iter;  ///< max iterations
         mat _sigma;     ///< sigma vectors
+        string _A_diag_file; ///< vector of diagonal for preconditioner filename
         string _sigma_file_curr; ///< sigma vector filename
         string _sigma_file_save; ///< sigma vector filename
         string _subspace_file_curr; ///< subspace vector filename
         string _subspace_file_save; ///< subspace vector filename
         string _scr_dir; 
         vec _res_vals; ///< current residual values
+        int _do_preconditioner;
+        void precondition(vec& Hd, vec& r, double& l);
 
 
     public:
@@ -51,6 +54,12 @@ class Davidson
         /// form matrix in krylov subspace and get updated values
         void iterate();
 
+        /// turn-on preconditioning 
+        void turn_on_preconditioner(){_do_preconditioner = 1;};
+
+        /// turn-off preconditioning 
+        void turn_off_preconditioner(){_do_preconditioner = 0;};
+
         ///// Set sigma vector 
         //void set_sigma(mat s){_sigma = s;};
 
@@ -62,6 +71,9 @@ class Davidson
 
         /// get current sigma vectors file
         string& sigma_file_curr() {return _sigma_file_curr;}; 
+        
+        /// get filename for vector of matrix diagonal 
+        string& A_diag_file() {return _A_diag_file;}; 
         
         /// get max iterations
         int max_iter() {return _max_iter;}; 

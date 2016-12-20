@@ -13,9 +13,11 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     _n_roots = n_roots;
     _thresh = 1E-6; ///< default value
     _max_iter = 100; ///< default value
+    _do_preconditioner = 0;
     _res_vals = zeros(n_roots,1);
 
     _scr_dir = scr_dir;
+    _A_diag_file = _scr_dir + "/A_diag.mat";
     _sigma_file_curr = _scr_dir + "/sigma_curr.mat";
     _sigma_file_save = _scr_dir + "/sigma_save.mat";
     _subspace_file_curr = _scr_dir + "/subspace_curr.mat";
@@ -77,8 +79,10 @@ void Davidson::iterate()
     
     mat V,sigma;
     mat T;
+    vec Hd; // matrix diagonal
     
     sigma.load(_sigma_file_save,arma_binary);
+    Hd.load(A_diag_file(), arma_binary);
    
     //  collect previous sigma vectors and recent additions 
     {
@@ -134,22 +138,31 @@ void Davidson::iterate()
         double b_n = norm(r_n);
         
         // append current eigenvalue of T to list of ritz_vals 
-        res_vals.resize(res_vals.n_elem + 1);
-        res_vals(res_vals.n_elem-1) = b_n;
+        //res_vals.resize(res_vals.n_elem + 1);
+        //res_vals(res_vals.n_elem-1) = b_n;
         _res_vals(n) = b_n;
 
         if(abs(b_n) < _thresh) continue;
         
         r_n = r_n/b_n;
 
-        if(_iter > 4) {}; // do preconditioning
+        // do preconditioning
+        if(_do_preconditioner) 
+        {
+            precondition(Hd, r_n, ritz_vals(n));
+        }; 
         
        
         // check if this root is converged 
         if(b_n > _thresh)
         {
             for(int j=0; j<V.n_cols; j++) r_n = r_n - V.col(j)*dot(V.col(j),r_n);
-            V_new = join_rows(V_new,r_n);
+            b_n = norm(r_n);
+            if(b_n > _thresh)
+            {
+                r_n = r_n/b_n;
+                V_new = join_rows(V_new,r_n);
+            };
         }
         else
         {
@@ -164,14 +177,14 @@ void Davidson::iterate()
 
     printf("  Iteration %4i ",_iter);
     printf("|");
-    printf(" Vecs:%3i : ",V.n_rows);
+    printf(" Vecs:%3i : ",V.n_cols);
     printf("|");
-    for(int r=0; r<_n_roots; r++) printf(" %12.8f ",ritz_vals(r));
+    for(int r=0; r<_n_roots; r++) printf(" %16.8f ",ritz_vals(r));
     printf("|");
-    for(int r=0; r<_n_roots; r++) printf(" %6.1e ",res_vals(r));
+    for(int r=0; r<_n_roots; r++) printf(" %6.1e ",_res_vals(r));
     printf("\n");
 
-
+    /*
     //check all for convergence
     int done =1;
     for(int k=0; k<res_vals.n_elem; k++)
@@ -179,11 +192,12 @@ void Davidson::iterate()
         if(abs(res_vals(k)) > _thresh) done = 0; 
     };
     if(done == 1) return;
+    */
     _iter += 1;
 };/*}}}*/
 
 int Davidson::converged()
-{
+{/*{{{*/
     //check all for convergence
     //
     // returns 0 if not converged
@@ -194,4 +208,13 @@ int Davidson::converged()
         if(abs(_res_vals(k)) > _thresh) done = 0; 
     };
     return done;
-};
+};/*}}}*/
+
+void Davidson::precondition(vec& Hd, vec& r, double& l)
+{/*{{{*/
+    vec M = 1/(Hd - l);
+    r = M % r;
+};/*}}}*/
+
+
+
