@@ -31,6 +31,7 @@ class Davidson
         string _subspace_file_curr; ///< subspace vector filename
         string _subspace_file_save; ///< subspace vector filename
         string _scr_dir; 
+        vec _res_vals; ///< current residual values
 
 
     public:
@@ -47,8 +48,8 @@ class Davidson
         /// Set max number of iterations
         void set_max_iter(const int& m){_max_iter = m;};
 
-        /// form matrix in krylov subspace
-        void form_subspace_matrix();
+        /// form matrix in krylov subspace and get updated values
+        void iterate();
 
         ///// Set sigma vector 
         //void set_sigma(mat s){_sigma = s;};
@@ -73,6 +74,9 @@ class Davidson
 
         /// get dimension of CI space 
         size_t dim() {return _dim;}; 
+
+        /// Check for convergence 
+        int converged(); 
 };
 #endif
 

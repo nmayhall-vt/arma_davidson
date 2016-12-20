@@ -11,8 +11,9 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     _dim = dim;
     _iter = 0;
     _n_roots = n_roots;
-    _thresh = 1E-8; ///< default value
+    _thresh = 1E-6; ///< default value
     _max_iter = 100; ///< default value
+    _res_vals = zeros(n_roots,1);
 
     _scr_dir = scr_dir;
     _sigma_file_curr = _scr_dir + "/sigma_curr.mat";
@@ -68,8 +69,8 @@ void Davidson::rand_init()
     _iter = 0;
 };/*}}}*/
 
-void Davidson::form_subspace_matrix()
-{
+void Davidson::iterate()
+{/*{{{*/
     /**
       Form v' H v. Here we assume we can store the full sigma vector in memory
       **/
@@ -90,7 +91,7 @@ void Davidson::form_subspace_matrix()
     //  collect previous subspace vectors and recent additions 
     {
         V.load(_subspace_file_save,arma_binary);
-        cout << norm(eye(V.n_cols, V.n_cols)-V.t() * V) << endl;
+        //cout << norm(eye(V.n_cols, V.n_cols)-V.t() * V) << endl;
         mat V_curr;
         V_curr.load(_subspace_file_curr,arma_binary);
         V = join_rows(V,V_curr);
@@ -99,7 +100,20 @@ void Davidson::form_subspace_matrix()
 
     T = V.t() * sigma;// V'H*V
 
-    T = .5*(T+T.t()); // get rid of any numerical noise breaking symmetry
+    /*
+    mat S = V.t() * V;// V'V
+    mat X, Xinv;
+
+    {
+        mat scr_m;    
+        vec scr_v;    
+        eig_sym(scr_v,scr_m,S);
+        X = scr_m * diagmat(pow(scr_v,-0.5)) * scr_m.t();
+        Xinv = scr_m * diagmat(pow(scr_v,0.5)) * scr_m.t();
+    };
+    */
+
+    //T = .5*(T+T.t()); // get rid of any numerical noise breaking symmetry
 
     mat X;
     vec res_vals, ritz_vals;
@@ -108,20 +122,25 @@ void Davidson::form_subspace_matrix()
     eig_sym(ritz_vals,X,T);
     //cout << l << endl;
 
+    mat R = sigma * X - V * X * diagmat(ritz_vals);
     mat V_new;
     for(int n=0; n<_n_roots; n++)
     {
-        double l_n = ritz_vals(n);
-        sigma -= l_n*V;
-        mat r_n = sigma*X.col(n);
+        //double l_n = ritz_vals(n);
+        //sigma -= l_n*V;
+        //mat r_n = sigma*X.col(n);
+        vec r_n = R.col(n);
 
         double b_n = norm(r_n);
-        //cout << b_n << endl;
-        r_n = r_n/b_n;
         
         // append current eigenvalue of T to list of ritz_vals 
         res_vals.resize(res_vals.n_elem + 1);
         res_vals(res_vals.n_elem-1) = b_n;
+        _res_vals(n) = b_n;
+
+        if(abs(b_n) < _thresh) continue;
+        
+        r_n = r_n/b_n;
 
         if(_iter > 4) {}; // do preconditioning
         
@@ -129,25 +148,6 @@ void Davidson::form_subspace_matrix()
         // check if this root is converged 
         if(b_n > _thresh)
         {
-            // this needs fixed
-            //mat tmp = _V.join_cols(_V,r_n);
-            //cout << _V << endl;
-            //cout << join_rows(_V,r_n) << endl;
-            
-            /*
-            mat Q,R;
-            qr_econ(Q,R,join_rows(V,join_rows(V_new,r_n)));
-            cout << "V" << endl;
-            cout << V << endl;
-            cout << "VR" << endl;
-            cout << join_rows(V,r_n) << endl;
-            cout << "V.t() * R" << endl;
-            cout << V.t() * r_n << endl;
-            cout << "Q" << endl;
-            cout << Q  << endl<< endl; 
-            V_new = join_rows(V_new,Q.col(Q.n_cols-1));
-            V_new = join_rows(V_new,r_n);
-            */
             for(int j=0; j<V.n_cols; j++) r_n = r_n - V.col(j)*dot(V.col(j),r_n);
             V_new = join_rows(V_new,r_n);
         }
@@ -180,4 +180,18 @@ void Davidson::form_subspace_matrix()
     };
     if(done == 1) return;
     _iter += 1;
+};/*}}}*/
+
+int Davidson::converged()
+{
+    //check all for convergence
+    //
+    // returns 0 if not converged
+    // returns 1 if converged
+    int done =1;
+    for(int k=0; k<_res_vals.n_elem; k++)
+    {
+        if(abs(_res_vals(k)) > _thresh) done = 0; 
+    };
+    return done;
 };
