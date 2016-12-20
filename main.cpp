@@ -15,14 +15,15 @@ int main ()
 #endif
 
 
-    size_t N = 500;
+    size_t N = 10000;
+    int n_roots = 1;
     
-    Davidson my_davidson(N,3,"scr");
+    Davidson my_davidson(N,n_roots,"scr");
     my_davidson.rand_init();
 
     mat A = randn(N,N);
     A = A.t() + A;
-    A = A - 10000*diagmat(randu(N));
+    A = A - 1000*diagmat(randu(N));
     
     my_davidson.set_max_iter(100);
         
@@ -44,19 +45,22 @@ int main ()
         
         sigma.save(my_davidson.sigma_file_curr());
     
-        if(i>10) my_davidson.turn_on_preconditioner();
+        if(i>4) my_davidson.turn_on_preconditioner();
         
         my_davidson.iterate();
+        my_davidson.print_iteration();
         if(my_davidson.converged()) break;
             
     };
    
+    if(N <= 5000)
     {
         mat U;
         vec e;
+
         eig_sym(e,U,A);
         cout << " exact  " << endl;
-        for(int i=0; i<10; i++) printf( "  %4i %16.12f \n", i, e(i));
+        for(int i=0; i<n_roots; i++) printf( "  %4i %16.12f \n", i, e(i));
     };
     return 0;
 }

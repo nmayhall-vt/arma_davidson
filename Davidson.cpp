@@ -15,6 +15,8 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     _max_iter = 100; ///< default value
     _do_preconditioner = 0;
     _res_vals = zeros(n_roots,1);
+    _ritz_vals = zeros(n_roots,1);
+    _subspace_size = 0;
 
     _scr_dir = scr_dir;
     _A_diag_file = _scr_dir + "/A_diag.mat";
@@ -120,13 +122,12 @@ void Davidson::iterate()
     //T = .5*(T+T.t()); // get rid of any numerical noise breaking symmetry
 
     mat X;
-    vec res_vals, ritz_vals;
     //vec l;
 
-    eig_sym(ritz_vals,X,T);
+    eig_sym(_ritz_vals,X,T);
     //cout << l << endl;
 
-    mat R = sigma * X - V * X * diagmat(ritz_vals);
+    mat R = sigma * X - V * X * diagmat(_ritz_vals);
     mat V_new;
     for(int n=0; n<_n_roots; n++)
     {
@@ -149,7 +150,7 @@ void Davidson::iterate()
         // do preconditioning
         if(_do_preconditioner) 
         {
-            precondition(Hd, r_n, ritz_vals(n));
+            precondition(Hd, r_n, _ritz_vals(n));
         }; 
         
        
@@ -158,9 +159,10 @@ void Davidson::iterate()
         {
             for(int j=0; j<V.n_cols; j++) r_n = r_n - V.col(j)*dot(V.col(j),r_n);
             b_n = norm(r_n);
+            //_res_vals(n) = b_n;
             if(b_n > _thresh)
             {
-                r_n = r_n/b_n;
+                //r_n = r_n/b_n;
                 V_new = join_rows(V_new,r_n);
             };
         }
@@ -172,28 +174,24 @@ void Davidson::iterate()
     
     V_new = orth(V_new);
 
+    _subspace_size += V_new.n_cols;
+
     V.save(_subspace_file_save, arma_binary);
     V_new.save(_subspace_file_curr, arma_binary);
 
+    _iter += 1;
+};/*}}}*/
+
+void Davidson::print_iteration()
+{/*{{{*/
     printf("  Iteration %4i ",_iter);
     printf("|");
-    printf(" Vecs:%3i : ",V.n_cols);
+    printf(" Vecs:%4li : ",_subspace_size);
     printf("|");
-    for(int r=0; r<_n_roots; r++) printf(" %16.8f ",ritz_vals(r));
+    for(int r=0; r<_n_roots; r++) printf(" %16.8f ",_ritz_vals(r));
     printf("|");
     for(int r=0; r<_n_roots; r++) printf(" %6.1e ",_res_vals(r));
     printf("\n");
-
-    /*
-    //check all for convergence
-    int done =1;
-    for(int k=0; k<res_vals.n_elem; k++)
-    {
-        if(abs(res_vals(k)) > _thresh) done = 0; 
-    };
-    if(done == 1) return;
-    */
-    _iter += 1;
 };/*}}}*/
 
 int Davidson::converged()

@@ -32,7 +32,9 @@ class Davidson
         string _subspace_file_curr; ///< subspace vector filename
         string _subspace_file_save; ///< subspace vector filename
         string _scr_dir; 
+        size_t _subspace_size;  ///< Number of current subspace vectors
         vec _res_vals; ///< current residual values
+        vec _ritz_vals; ///< current ritz values
         int _do_preconditioner;
         void precondition(vec& Hd, vec& r, double& l);
 
@@ -62,6 +64,10 @@ class Davidson
 
         ///// Set sigma vector 
         //void set_sigma(mat s){_sigma = s;};
+        
+        /// Print current iteration's info 
+        void print_iteration();
+
 
 
         // access
