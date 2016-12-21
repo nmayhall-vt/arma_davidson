@@ -134,84 +134,36 @@ void Davidson::iterate()
     mat R = sigma * X - V * X * diagmat(_ritz_vals);
     mat V_new;
 
-    if(0)
-    {
-
-        for(int i=0; i<_n_roots; i++) _res_vals(i) = norm(R.col(i));
-
-        if(_do_preconditioner) 
-        {
-            precondition(Hd, R, _ritz_vals);
-        };
-
-        R = R - V* ( V.t()*R );
-
-        //if(V_new.n_cols > 0) r_n = r_n - V_new*V_new.t()*r_n;
-
-           
-        {
-            cout << R.n_rows << endl;
-            cout << R.n_cols << endl;
-            mat tmp = R.t() * R;
-            mat tmp2,tmp3;
-            vec vtmp;
-            svd(tmp2,vtmp,tmp3,tmp);
-            cout << vtmp << endl;
-        };
-
-        //V_new = orth(R);
-        V_new = R;
-    };
-
     for(int n=0; n<_n_roots; n++)
     {
-        //continue;
-        //double l_n = ritz_vals(n);
-        //sigma -= l_n*V;
-        //mat r_n = sigma*X.col(n);
         vec r_n = R.col(n);
 
         double b_n = norm(r_n);
         
         // append current eigenvalue of T to list of ritz_vals 
-        //res_vals.resize(res_vals.n_elem + 1);
-        //res_vals(res_vals.n_elem-1) = b_n;
         _res_vals(n) = b_n;
 
-        //if(abs(b_n) < _thresh) continue;
-        
-        //r_n = r_n/b_n;
-
         // do preconditioning
-        if(_do_preconditioner) 
-        {
-            precondition(Hd, r_n, _ritz_vals(n));
-        };
+        if(_do_preconditioner)  precondition(Hd, r_n, _ritz_vals(n));
+
         b_n = norm(r_n); 
         
        
         // check if this root is converged 
         //if(b_n > _thresh)
         {
-            //for(int j=0; j<V.n_cols; j++) r_n = r_n - V.col(j)*dot(V.col(j),r_n);
-            //for(int j=0; j<V_new.n_cols; j++) r_n = r_n - V_new.col(j)*dot(V_new.col(j),r_n);
             r_n = r_n - V*V.t()*r_n;
             if(V_new.n_cols > 0) r_n = r_n - V_new*V_new.t()*r_n;
             double b_n_p = norm(r_n);
-            //_res_vals(n) = b_n;
             if(b_n_p / b_n > 1e-3)
             {
                 r_n = r_n/b_n_p;
                 V_new = join_rows(V_new,r_n);
-            }
-            else if( b_n > _thresh)
-            {
-                //V_new = join_rows(V_new,R.col(n)/b_n);
             };
         };
     };
     
-    V_new = orth(V_new);
+    //V_new = orth(V_new);
 
     _subspace_size += V_new.n_cols;
 
@@ -225,7 +177,7 @@ void Davidson::print_iteration()
 {/*{{{*/
     printf("  Iteration %4i ",_iter);
     printf("|");
-    printf(" Vecs:%4li : ",_subspace_size);
+    printf(" Vecs:%4li ",_subspace_size);
     printf("|");
     for(int r=0; r<_n_roots; r++) printf(" %16.8f ",_ritz_vals(r));
     printf("|");

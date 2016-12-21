@@ -15,16 +15,17 @@ int main ()
 #endif
 
 
-    size_t N = 5000;
-    int n_roots = 4;
+    size_t N = 10000;
+    int n_roots = 5;
     
     Davidson my_davidson(N,n_roots,"scr");
     my_davidson.rand_init();
 
+    arma_rng::set_seed(2);
     mat A = randn(N,N);
     A = A.t() + A;
-    //A = A - 1000*diagmat(randu(N));
-    for(size_t i=0; i<N; i++) A(i,i) += i*10;
+    A = A - 1000*diagmat(randu(N));
+    for(size_t i=0; i<N; i++) A(i,i) += i*2;
     
     my_davidson.set_max_iter(100);
     my_davidson.set_thresh(1e-6);
