@@ -25,31 +25,37 @@ class Davidson
         int _n_roots;   ///< number of roots sought
         double _thresh; ///< thresh
         int _max_iter;  ///< max iterations
-        mat _sigma;     ///< sigma vectors
+        mat _sig_curr;     ///< sigma vectors
+        mat _sig_prev;     ///< sigma vectors
+        mat _vec_curr;     ///< current subspace vectors
+        mat _vec_prev;     ///< previous subspace vectors
+        vec _Hd;            ///< vector of diagonal for preconditioner
+
+        /*
         string _A_diag_file; ///< vector of diagonal for preconditioner filename
         string _sigma_file_curr; ///< sigma vector filename
         string _sigma_file_save; ///< sigma vector filename
         string _subspace_file_curr; ///< subspace vector filename
         string _subspace_file_save; ///< subspace vector filename
         string _scr_dir; 
+        */
+
         size_t _subspace_size;  ///< Number of current subspace vectors
         vec _res_vals; ///< current residual values
         vec _ritz_vals; ///< current ritz values
+        mat _ritz_vecs; ///< current ritz vectors
         int _do_preconditioner;
         void precondition(vec& Hd, vec& r, double& l);
         void precondition(vec& Hd, mat& R, vec& l);
 
 
     public:
-        Davidson(const size_t& dim, const int& n_roots, const string& scr);
+        Davidson(const size_t& dim, const int& n_roots);
         
         // functions
       
         /// Initialize subspace vectors with random values and orthogonalize 
         void rand_init();
-
-        /// Set scratch file directory 
-        void set_scr_dir(const string& f){_scr_dir = f;};
 
         /// Set convergence threshhold for norm of residual
         void set_thresh(const double&e){_thresh = e;};
@@ -72,18 +78,24 @@ class Davidson
         /// Print current iteration's info 
         void print_iteration();
 
+        /// Collapse subspace 
+        void restart(); 
+
 
 
         // access
         
-        /// get current subspace vectors file
-        string& subspace_file_curr() {return _subspace_file_curr;}; 
-
-        /// get current sigma vectors file
-        string& sigma_file_curr() {return _sigma_file_curr;}; 
+        /// set diagonal of H 
+        void set_H_diag(vec); 
         
-        /// get filename for vector of matrix diagonal 
-        string& A_diag_file() {return _A_diag_file;}; 
+        /// get diagonal of H 
+        vec& H_diag() {return _Hd;}; 
+        
+        /// get sigma 
+        mat& sigma() {return _sig_curr;}; 
+        
+        /// get current subspace vectors 
+        mat& subspace_vecs() {return _vec_curr;}; 
         
         /// get max iterations
         int max_iter() {return _max_iter;}; 
@@ -96,6 +108,9 @@ class Davidson
 
         /// get dimension of CI space 
         size_t dim() {return _dim;}; 
+
+        /// get dimension of sub-space 
+        size_t subspace_size() {return _subspace_size;}; 
 
         /// Check for convergence 
         int converged(); 
