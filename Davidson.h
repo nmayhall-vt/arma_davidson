@@ -38,6 +38,8 @@ class Davidson
         int _do_preconditioner;
         void precondition(vec& Hd, vec& r, double& l);
         void precondition(vec& Hd, mat& R, vec& l);
+        mat _ritz_vecs;
+        void orthogonalize_subspace();
 
 
     public:
@@ -72,9 +74,13 @@ class Davidson
         /// Print current iteration's info 
         void print_iteration();
 
-
+        /// Restart subspace with current vector
+        void restart();
 
         // access
+        
+        /// get number of subspace vectors 
+        size_t subspace_size() {return _subspace_size;}; 
         
         /// get current subspace vectors file
         string& subspace_file_curr() {return _subspace_file_curr;}; 

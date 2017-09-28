@@ -48,28 +48,11 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
 
 void Davidson::rand_init()
 {/*{{{*/
-    mat _V = randu(_dim, _n_roots);
-    mat ovlp = _V.t() * _V;
-    mat U,V;
-    vec s;
-    svd(U,s,V,ovlp);
+    mat v = randu(_dim, _n_roots);
+    v.save(_subspace_file_curr, arma_binary);
 
-    for (int i=0; i<s.n_elem; i++)
-    {
-        if( abs(s(i))>1e-6)
-        {
-            s(i) = 1/sqrt(s(i));
-        }
-        else(s(i)=1);
-    };
-    V = V*diagmat(s);
-    _V = _V*V;
-    
-    ovlp = _V.t() * _V;
-    //cout << ovlp << endl;
-    if(norm(eye(ovlp.n_rows, ovlp.n_cols)-ovlp) > _thresh) throw std::runtime_error("problem in rand_init");
-    
-    _V.save(_subspace_file_curr, arma_binary);
+    orthogonalize_subspace();
+
     _iter = 0;
 };/*}}}*/
 
@@ -128,6 +111,7 @@ void Davidson::iterate()
 
     eig_sym(_ritz_vals,X,T);
     X = X.cols(0,_n_roots-1);
+    _ritz_vecs = X;
     _ritz_vals = _ritz_vals.subvec(0,_n_roots-1);
     //cout << _ritz_vals << endl;
     
@@ -244,5 +228,50 @@ void Davidson::precondition(vec& Hd, mat& R, vec& l)
     //r = r/norm(r);
 };/*}}}*/
 
+void Davidson::restart()
+{/*{{{*/
+    mat v,s;
+    v.load(_subspace_file_save, arma_binary);
+    s.load(_subspace_file_save, arma_binary);
+    //cout << "v: " << v.n_rows << "," << v.n_cols << endl;
+    //cout << "r: " << _ritz_vecs.n_rows << "," << _ritz_vecs.n_cols << endl;
+    v = v * _ritz_vecs;
+    s = s * _ritz_vecs;
+    v.save(_subspace_file_curr, arma_binary);
+    s.save(_sigma_file_curr, arma_binary);
+    _ritz_vecs.eye();
 
+    v.clear();
+    s.clear();
+    v.save(_subspace_file_save, arma_binary);
+    s.save(_sigma_file_save, arma_binary);
 
+    orthogonalize_subspace();
+
+    _subspace_size = _n_roots;
+};/*}}}*/
+
+void Davidson::orthogonalize_subspace()
+{/*{{{*/
+    mat v;
+    v.load(_subspace_file_curr, arma_binary);
+   
+     
+    mat ovlp = v.t() * v;
+    mat U,V;
+    vec s;
+    svd(U,s,V,ovlp);
+
+    for (int i=0; i<s.n_elem; i++)
+    {
+        if( abs(s(i))>1e-6) s(i) = 1/sqrt(s(i));
+        else(s(i)=1);
+    };
+    V = V*diagmat(s);
+    v = v*V;
+    
+    ovlp = v.t() * v;
+    if(norm(eye(ovlp.n_rows, ovlp.n_cols)-ovlp) > _thresh) throw std::runtime_error("problem in orthogonalize_subspace");
+
+    v.save(_subspace_file_curr, arma_binary);
+};/*}}}*/
