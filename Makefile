@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/nmayhall/code/dfcas/arma_davidson
+CMAKE_SOURCE_DIR = /home/nmayhall/code/dfcas
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/nmayhall/code/dfcas/arma_davidson
+CMAKE_BINARY_DIR = /home/nmayhall/code/dfcas
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/nmayhall/code/dfcas/arma_davidson/CMakeFiles /home/nmayhall/code/dfcas/arma_davidson/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/nmayhall/code/dfcas/arma_davidson/CMakeFiles 0
+	cd /home/nmayhall/code/dfcas && $(CMAKE_COMMAND) -E cmake_progress_start /home/nmayhall/code/dfcas/CMakeFiles /home/nmayhall/code/dfcas/arma_davidson/CMakeFiles/progress.marks
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f CMakeFiles/Makefile2 arma_davidson/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/nmayhall/code/dfcas/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f CMakeFiles/Makefile2 arma_davidson/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,43 +97,47 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f CMakeFiles/Makefile2 arma_davidson/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f CMakeFiles/Makefile2 arma_davidson/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/nmayhall/code/dfcas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named test1
+# Convenience name for target.
+arma_davidson/CMakeFiles/test1.dir/rule:
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f CMakeFiles/Makefile2 arma_davidson/CMakeFiles/test1.dir/rule
+.PHONY : arma_davidson/CMakeFiles/test1.dir/rule
 
-# Build rule for target.
-test1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test1
+# Convenience name for target.
+test1: arma_davidson/CMakeFiles/test1.dir/rule
+
 .PHONY : test1
 
 # fast build rule for target.
 test1/fast:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/build
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/test1.dir/build.make arma_davidson/CMakeFiles/test1.dir/build
 .PHONY : test1/fast
 
-#=============================================================================
-# Target rules for targets named arma_davidson
+# Convenience name for target.
+arma_davidson/CMakeFiles/arma_davidson.dir/rule:
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f CMakeFiles/Makefile2 arma_davidson/CMakeFiles/arma_davidson.dir/rule
+.PHONY : arma_davidson/CMakeFiles/arma_davidson.dir/rule
 
-# Build rule for target.
-arma_davidson: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 arma_davidson
+# Convenience name for target.
+arma_davidson: arma_davidson/CMakeFiles/arma_davidson.dir/rule
+
 .PHONY : arma_davidson
 
 # fast build rule for target.
 arma_davidson/fast:
-	$(MAKE) -f CMakeFiles/arma_davidson.dir/build.make CMakeFiles/arma_davidson.dir/build
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/arma_davidson.dir/build.make arma_davidson/CMakeFiles/arma_davidson.dir/build
 .PHONY : arma_davidson/fast
 
 Davidson.o: Davidson.cpp.o
@@ -142,7 +146,7 @@ Davidson.o: Davidson.cpp.o
 
 # target to build an object file
 Davidson.cpp.o:
-	$(MAKE) -f CMakeFiles/arma_davidson.dir/build.make CMakeFiles/arma_davidson.dir/Davidson.cpp.o
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/arma_davidson.dir/build.make arma_davidson/CMakeFiles/arma_davidson.dir/Davidson.cpp.o
 .PHONY : Davidson.cpp.o
 
 Davidson.i: Davidson.cpp.i
@@ -151,7 +155,7 @@ Davidson.i: Davidson.cpp.i
 
 # target to preprocess a source file
 Davidson.cpp.i:
-	$(MAKE) -f CMakeFiles/arma_davidson.dir/build.make CMakeFiles/arma_davidson.dir/Davidson.cpp.i
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/arma_davidson.dir/build.make arma_davidson/CMakeFiles/arma_davidson.dir/Davidson.cpp.i
 .PHONY : Davidson.cpp.i
 
 Davidson.s: Davidson.cpp.s
@@ -160,7 +164,7 @@ Davidson.s: Davidson.cpp.s
 
 # target to generate assembly for a file
 Davidson.cpp.s:
-	$(MAKE) -f CMakeFiles/arma_davidson.dir/build.make CMakeFiles/arma_davidson.dir/Davidson.cpp.s
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/arma_davidson.dir/build.make arma_davidson/CMakeFiles/arma_davidson.dir/Davidson.cpp.s
 .PHONY : Davidson.cpp.s
 
 test1.o: test1.cpp.o
@@ -169,7 +173,7 @@ test1.o: test1.cpp.o
 
 # target to build an object file
 test1.cpp.o:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/test1.cpp.o
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/test1.dir/build.make arma_davidson/CMakeFiles/test1.dir/test1.cpp.o
 .PHONY : test1.cpp.o
 
 test1.i: test1.cpp.i
@@ -178,7 +182,7 @@ test1.i: test1.cpp.i
 
 # target to preprocess a source file
 test1.cpp.i:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/test1.cpp.i
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/test1.dir/build.make arma_davidson/CMakeFiles/test1.dir/test1.cpp.i
 .PHONY : test1.cpp.i
 
 test1.s: test1.cpp.s
@@ -187,7 +191,7 @@ test1.s: test1.cpp.s
 
 # target to generate assembly for a file
 test1.cpp.s:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/test1.cpp.s
+	cd /home/nmayhall/code/dfcas && $(MAKE) -f arma_davidson/CMakeFiles/test1.dir/build.make arma_davidson/CMakeFiles/test1.dir/test1.cpp.s
 .PHONY : test1.cpp.s
 
 # Help Target
@@ -217,6 +221,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/nmayhall/code/dfcas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

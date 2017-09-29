@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <armadillo>
+#include <sys/stat.h>
 
 using namespace arma;
 using namespace std;
@@ -44,6 +45,7 @@ class Davidson
 
     public:
         Davidson(const size_t& dim, const int& n_roots, const string& scr);
+        //~Davidson();
         
         // functions
       

@@ -1,5 +1,4 @@
 #include "Davidson.h"
-#include <sys/stat.h>
 
 
 using namespace arma;
@@ -7,6 +6,7 @@ using namespace std;
 
 Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
 {/*{{{*/
+    cout << " hi \n" ;
     arma_rng::set_seed(2);  // set the seed to a random value
     _dim = dim;
     _iter = 0;
@@ -14,11 +14,14 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     _thresh = 1E-6; ///< default value
     _max_iter = 100; ///< default value
     _do_preconditioner = 0;
-    _res_vals = zeros(n_roots,1);
-    _ritz_vals = zeros(n_roots,1);
     _subspace_size = 0;
+    cout << " n_roots: " << n_roots << endl;
+
+    _res_vals = zeros(_n_roots);
+    _ritz_vals = zeros(_n_roots);
 
     _scr_dir = scr_dir;
+    cout << " Scratch files will be written to " << _scr_dir << endl;
     _A_diag_file = _scr_dir + "/A_diag.mat";
     _sigma_file_curr = _scr_dir + "/sigma_curr.mat";
     _sigma_file_save = _scr_dir + "/sigma_save.mat";
@@ -32,7 +35,7 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
         strcpy(tab2, _scr_dir.c_str());
         if (stat(tab2, &sb) == 0 && S_ISDIR(sb.st_mode))
         {
-            printf("YES\n");
+            cout << " Scratch directory exists" << endl;
         }
         else
         {
@@ -44,7 +47,14 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     tmp.save(_sigma_file_curr);
     tmp.save(_subspace_file_save);
     tmp.save(_subspace_file_curr);
+    cout << "what" << endl;
 };/*}}}*/
+
+/*
+Davidson::~Davidson()
+{
+};
+*/
 
 void Davidson::rand_init()
 {/*{{{*/
