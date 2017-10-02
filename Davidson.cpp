@@ -55,8 +55,10 @@ Davidson::~Davidson()
 
 void Davidson::rand_init()
 {/*{{{*/
+    mat s = zeros(_dim, _n_roots);
     mat v = randu(_dim, _n_roots);
     v.save(_subspace_file_curr, arma_binary);
+    s.save(_sigma_file_curr, arma_binary);
 
     orthogonalize_subspace();
 
@@ -146,10 +148,16 @@ void Davidson::iterate()
             r_n = r_n - V*V.t()*r_n;
             if(V_new.n_cols > 0) r_n = r_n - V_new*V_new.t()*r_n;
             double b_n_p = norm(r_n);
-            if(b_n_p / b_n > 1e-3)
+            if(b_n_p / b_n > 1e-5)
             {
                 r_n = r_n/b_n_p;
+                mat tmp = join_rows(V,V_new); 
+                r_n = r_n - tmp*tmp.t()*r_n;
                 V_new = join_rows(V_new,r_n);
+            }
+            else
+            {
+                throw std::runtime_error(" problem in getting new vector");
             };
         };
     };
@@ -239,14 +247,27 @@ void Davidson::restart()
 {/*{{{*/
     mat v,s;
     v.load(_subspace_file_save, arma_binary);
-    s.load(_subspace_file_save, arma_binary);
+    s.load(_sigma_file_save, arma_binary);
     //cout << "v: " << v.n_rows << "," << v.n_cols << endl;
     //cout << "r: " << _ritz_vecs.n_rows << "," << _ritz_vecs.n_cols << endl;
     v = v * _ritz_vecs;
     s = s * _ritz_vecs;
+   
     v.save(_subspace_file_curr, arma_binary);
     s.save(_sigma_file_curr, arma_binary);
+    
     _ritz_vecs.eye();
+
+    cout << " Restarting: NYI" << endl; 
+    //exit(0);
+    mat tmp = v.t() * s;
+    _ritz_vals = tmp.diag();
+    /*
+    for(int i=0; i<_res_vals.n_elem; i++)
+    {
+        printf(" %12.8f\n", _res_vals(i));
+    };
+    */
 
     v.clear();
     s.clear();

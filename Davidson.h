@@ -1,6 +1,7 @@
 #ifndef DAVIDSON_H
 #define DAVIDSON_H
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
@@ -107,6 +108,9 @@ class Davidson
 
         /// Check for convergence 
         int converged(); 
+
+        /// Check for convergence 
+        vec eigenvalues(){return _ritz_vals;}; 
 };
 #endif
 
