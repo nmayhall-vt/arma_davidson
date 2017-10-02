@@ -6,7 +6,6 @@ using namespace std;
 
 Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
 {/*{{{*/
-    cout << " hi \n" ;
     arma_rng::set_seed(2);  // set the seed to a random value
     _dim = dim;
     _iter = 0;
@@ -15,7 +14,6 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     _max_iter = 100; ///< default value
     _do_preconditioner = 0;
     _subspace_size = 0;
-    cout << " n_roots: " << n_roots << endl;
 
     _res_vals = zeros(_n_roots);
     _ritz_vals = zeros(_n_roots);
@@ -47,7 +45,6 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     tmp.save(_sigma_file_curr);
     tmp.save(_subspace_file_save);
     tmp.save(_subspace_file_curr);
-    cout << "what" << endl;
 };/*}}}*/
 
 /*
