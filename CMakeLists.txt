@@ -8,6 +8,7 @@ FIND_LIBRARY(ARMADILLO armadillo)
 MESSAGE(STATUS "Armadillo Library location: " ${ARMADILLO})
 
 add_library( arma_davidson 
+	SHARED
 	Davidson.cpp 
 	Davidson.h 
 	)

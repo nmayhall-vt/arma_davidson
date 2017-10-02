@@ -14,6 +14,8 @@ int main ()
     printf(" Debug mode\n");
 #endif
 
+    arma::arma_version ver;
+    std::cout << "ARMA version: "<< ver.as_string() << std::endl;
 
     size_t N = 2000;
     int n_roots = 5;
