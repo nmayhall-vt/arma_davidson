@@ -181,7 +181,22 @@ void Davidson::print_iteration()
     for(int r=0; r<_n_roots; r++) printf(" %16.8f ",_ritz_vals(r));
     printf("|");
     for(int r=0; r<_n_roots; r++) printf(" %6.1e ",_res_vals(r));
+    printf(" PC:%1i",_do_preconditioner);
     printf("\n");
+};/*}}}*/
+
+int Davidson::converged(const double& man_thresh)
+{/*{{{*/
+    //check to  see if all vectors sought are converged to within man_thresh
+    //
+    // returns 0 if not converged
+    // returns 1 if converged
+    int done =1;
+    for(int k=0; k<_res_vals.n_elem; k++)
+    {
+        if(abs(_res_vals(k)) > man_thresh) done = 0; 
+    };
+    return done;
 };/*}}}*/
 
 int Davidson::converged()

@@ -109,6 +109,9 @@ class Davidson
         /// Check for convergence 
         int converged(); 
 
+        /// Check for convergence to within specific threshhold
+        int converged(const double&); 
+
         /// Check for convergence 
         vec eigenvalues(){return _ritz_vals;}; 
 };
