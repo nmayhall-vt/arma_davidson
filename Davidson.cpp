@@ -14,7 +14,7 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     _max_iter = 100; ///< default value
     _do_preconditioner = 0;
     _subspace_size = 0;
-
+    _precond_thresh_switch = -1.0; ///< decide when to precondition each vector
     _res_vals = zeros(_n_roots);
     _ritz_vals = zeros(_n_roots);
 
@@ -137,7 +137,23 @@ void Davidson::iterate()
         _res_vals(n) = b_n;
 
         // do preconditioning
-        if(_do_preconditioner)  precondition(Hd, r_n, _ritz_vals(n));
+        if(_do_preconditioner)
+        {
+            if(_precond_thresh_switch > -1.0)
+            {
+                if(abs(_res_vals(n)) <= _precond_thresh_switch)
+                {
+                    precondition(Hd, r_n, _ritz_vals(n));
+                };
+            }
+            else
+            {
+                precondition(Hd, r_n, _ritz_vals(n));
+            };
+           /* 
+            precondition(Hd, r_n, _ritz_vals(n));
+            */
+        };
 
         b_n = norm(r_n); 
         

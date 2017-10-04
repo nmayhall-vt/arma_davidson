@@ -42,6 +42,7 @@ class Davidson
         void precondition(vec& Hd, mat& R, vec& l);
         mat _ritz_vecs;
         void orthogonalize_subspace();
+        double _precond_thresh_switch;
 
 
     public:
@@ -58,6 +59,9 @@ class Davidson
 
         /// Set convergence threshhold for norm of residual
         void set_thresh(const double&e){_thresh = e;};
+
+        /// Set convergence threshhold for deciding when to turn on preconditioner 
+        void set_precond_thresh_switch(const double&e){_precond_thresh_switch = e;};
 
         /// Set max number of iterations
         void set_max_iter(const int& m){_max_iter = m;};
