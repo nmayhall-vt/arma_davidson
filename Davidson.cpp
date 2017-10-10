@@ -284,8 +284,8 @@ void Davidson::restart()
     v = v * _ritz_vecs;
     s = s * _ritz_vecs;
    
-    v.save(_subspace_file_curr, arma_binary);
-    s.save(_sigma_file_curr, arma_binary);
+    //v.save(_subspace_file_curr, arma_binary);
+    //s.save(_sigma_file_curr, arma_binary);
     
     _ritz_vecs.eye();
 
@@ -300,8 +300,8 @@ void Davidson::restart()
     };
     */
 
-    v.clear();
-    s.clear();
+    //v.clear();
+    //s.clear();
     v.save(_subspace_file_save, arma_binary);
     s.save(_sigma_file_save, arma_binary);
 
