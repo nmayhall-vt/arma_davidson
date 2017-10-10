@@ -41,7 +41,6 @@ class Davidson
         void precondition(vec& Hd, vec& r, double& l);
         void precondition(vec& Hd, mat& R, vec& l);
         mat _ritz_vecs;
-        void orthogonalize_subspace();
         double _precond_thresh_switch;
 
 
@@ -56,6 +55,9 @@ class Davidson
 
         /// Set scratch file directory 
         void set_scr_dir(const string& f){_scr_dir = f;};
+
+        /// Orth SS
+        void orthogonalize_subspace();
 
         /// Set convergence threshhold for norm of residual
         void set_thresh(const double&e){_thresh = e;};
