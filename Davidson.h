@@ -97,6 +97,9 @@ class Davidson
         /// get current sigma vectors file
         string& sigma_file_curr() {return _sigma_file_curr;}; 
         
+        /// get eigenvectors in a matrix 
+        mat get_eigenvectors(); 
+        
         /// get filename for vector of matrix diagonal 
         string& A_diag_file() {return _A_diag_file;}; 
         

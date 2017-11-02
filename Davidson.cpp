@@ -77,7 +77,10 @@ void Davidson::iterate()
     
     sigma.load(_sigma_file_save,arma_binary);
     Hd.load(A_diag_file(), arma_binary);
-   
+  
+    //printf("Hd: %5lu %5lu\n",Hd.n_rows, Hd.n_cols);  
+    //printf("sigma: %5lu %5lu\n",sigma.n_rows, sigma.n_cols);  
+
     //  collect previous sigma vectors and recent additions 
     {
         mat sigma_curr;
@@ -333,4 +336,12 @@ void Davidson::orthogonalize_subspace()
     if(norm(eye(ovlp.n_rows, ovlp.n_cols)-ovlp) > _thresh) throw std::runtime_error("problem in orthogonalize_subspace");
 
     v.save(_subspace_file_curr, arma_binary);
+};/*}}}*/
+
+mat Davidson::get_eigenvectors()
+{/*{{{*/
+    mat v;
+    v.load(_subspace_file_save, arma_binary);
+    v = v * _ritz_vecs;
+    return v;   
 };/*}}}*/
