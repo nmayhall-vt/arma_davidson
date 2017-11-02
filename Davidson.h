@@ -28,6 +28,13 @@ class Davidson
         double _thresh; ///< thresh
         int _max_iter;  ///< max iterations
         mat _sigma;     ///< sigma vectors
+        
+        vec _A_diag;
+        mat _sigma_curr;
+        mat _sigma_save;
+        mat _subspace_curr;
+        mat _subspace_save;
+        
         string _A_diag_file; ///< vector of diagonal for preconditioner filename
         string _sigma_file_curr; ///< sigma vector filename
         string _sigma_file_save; ///< sigma vector filename
@@ -65,6 +72,9 @@ class Davidson
         /// Set convergence threshhold for deciding when to turn on preconditioner 
         void set_precond_thresh_switch(const double&e){_precond_thresh_switch = e;};
 
+        /// Set diagonal of Hamiltonian 
+        void set_A_diag(vec& m){_A_diag = m;};
+
         /// Set max number of iterations
         void set_max_iter(const int& m){_max_iter = m;};
 
@@ -78,7 +88,7 @@ class Davidson
         void turn_off_preconditioner(){_do_preconditioner = 0;};
 
         ///// Set sigma vector 
-        //void set_sigma(mat s){_sigma = s;};
+        void set_sigma_curr(mat& s){_sigma_curr = s;};
         
         /// Print current iteration's info 
         void print_iteration();
@@ -120,6 +130,9 @@ class Davidson
 
         /// Check for convergence to within specific threshhold
         int converged(const double&); 
+
+        /// Check for convergence 
+        mat& get_subspace_curr(){return _subspace_curr;}; 
 
         /// Check for convergence 
         vec eigenvalues(){return _ritz_vals;}; 

@@ -18,6 +18,9 @@ Davidson::Davidson(const size_t& dim, const int& n_roots, const string& scr_dir)
     _res_vals = zeros(_n_roots);
     _ritz_vals = zeros(_n_roots);
 
+
+    /*
+    */
     _scr_dir = scr_dir;
     cout << " Scratch files will be written to " << _scr_dir << endl;
     _A_diag_file = _scr_dir + "/A_diag.mat";
@@ -55,10 +58,10 @@ Davidson::~Davidson()
 
 void Davidson::rand_init()
 {/*{{{*/
-    mat s = zeros(_dim, _n_roots);
-    mat v = randu(_dim, _n_roots);
-    v.save(_subspace_file_curr, arma_binary);
-    s.save(_sigma_file_curr, arma_binary);
+    _subspace_curr = randu(_dim, _n_roots);
+    _sigma_curr = zeros(_dim, _n_roots);
+    //v.save(_subspace_file_curr, arma_binary);
+    //s.save(_sigma_file_curr, arma_binary);
 
     orthogonalize_subspace();
 
@@ -73,23 +76,28 @@ void Davidson::iterate()
     
     mat V,sigma;
     mat T;
-    vec Hd; // matrix diagonal
-    
+    vec& Hd = _A_diag; // matrix diagonal
+   
+    /* 
     sigma.load(_sigma_file_save,arma_binary);
     Hd.load(A_diag_file(), arma_binary);
+    */
   
     //printf("Hd: %5lu %5lu\n",Hd.n_rows, Hd.n_cols);  
     //printf("sigma: %5lu %5lu\n",sigma.n_rows, sigma.n_cols);  
 
     //  collect previous sigma vectors and recent additions 
+    /*
     {
         mat sigma_curr;
         sigma_curr.load(_sigma_file_curr,arma_binary);
         sigma = join_rows(sigma,sigma_curr);
     };
-    sigma.save(_sigma_file_save, arma_binary);
+    */
+    //sigma.save(_sigma_file_save, arma_binary);
 
     //  collect previous subspace vectors and recent additions 
+    /*
     {
         V.load(_subspace_file_save,arma_binary);
         //cout << norm(eye(V.n_cols, V.n_cols)-V.t() * V) << endl;
@@ -98,6 +106,10 @@ void Davidson::iterate()
         V = join_rows(V,V_curr);
         V.save(_subspace_file_save, arma_binary);
     };
+    */
+    
+    V = join_rows(_subspace_save, _subspace_curr);
+    sigma = join_rows(_sigma_save, _sigma_curr);
 
 
     T = V.t() * sigma;// V'H*V
@@ -186,7 +198,10 @@ void Davidson::iterate()
     _subspace_size += V_new.n_cols;
 
     //V.save(_subspace_file_save, arma_binary);
-    V_new.save(_subspace_file_curr, arma_binary);
+    //V_new.save(_subspace_file_curr, arma_binary);
+    _sigma_save = join_rows(_sigma_save, _sigma_curr);
+    _subspace_save = join_rows(_subspace_save, _subspace_curr);
+    _subspace_curr = V_new;
 
     _iter += 1;
 };/*}}}*/
@@ -280,8 +295,8 @@ void Davidson::precondition(vec& Hd, mat& R, vec& l)
 void Davidson::restart()
 {/*{{{*/
     mat v,s;
-    v.load(_subspace_file_save, arma_binary);
-    s.load(_sigma_file_save, arma_binary);
+    v = _subspace_save;
+    s = _sigma_save;
     //cout << "v: " << v.n_rows << "," << v.n_cols << endl;
     //cout << "r: " << _ritz_vecs.n_rows << "," << _ritz_vecs.n_cols << endl;
     v = v * _ritz_vecs;
@@ -305,9 +320,9 @@ void Davidson::restart()
 
     //v.clear();
     //s.clear();
-    v.save(_subspace_file_save, arma_binary);
-    s.save(_sigma_file_save, arma_binary);
 
+    _subspace_save = v;
+    _sigma_save = s;
     orthogonalize_subspace();
 
     _subspace_size = _n_roots;
@@ -316,9 +331,9 @@ void Davidson::restart()
 void Davidson::orthogonalize_subspace()
 {/*{{{*/
     mat v;
-    v.load(_subspace_file_curr, arma_binary);
+    v = _subspace_curr;
    
-     
+    //cout << v << endl; 
     mat ovlp = v.t() * v;
     mat U,V;
     vec s;
@@ -335,13 +350,14 @@ void Davidson::orthogonalize_subspace()
     ovlp = v.t() * v;
     if(norm(eye(ovlp.n_rows, ovlp.n_cols)-ovlp) > _thresh) throw std::runtime_error("problem in orthogonalize_subspace");
 
-    v.save(_subspace_file_curr, arma_binary);
+    _subspace_curr = v;
+    
 };/*}}}*/
 
 mat Davidson::get_eigenvectors()
 {/*{{{*/
     mat v;
-    v.load(_subspace_file_save, arma_binary);
+    v = _subspace_save;
     v = v * _ritz_vecs;
     return v;   
 };/*}}}*/
